@@ -1,0 +1,120 @@
+<div class="flex h-screen">
+	<!-- Sidebar lịch sử -->
+	<div *ngIf="showHistory" class="fixed top-0 left-0 w-64 h-full bg-gray-100 border-r p-4 overflow-y-auto z-20">
+	  <h2 class="text-xl font-bold mb-4">Lịch sử trò chuyện</h2>
+	  <ul>
+		<li *ngFor="let item of history; let i = index" class="mb-3">
+		  <div 
+			(click)="toggleHistoryItem(i)" 
+			class="cursor-pointer text-blue-700 font-medium hover:underline"
+		  >
+			• {{ item.title }}
+		  </div>
+		  <div *ngIf="expandedHistoryIndex === i" class="mt-1 text-sm text-gray-800 whitespace-pre-wrap">
+			{{ item.full }}
+		  </div>
+		</li>
+	  </ul>
+	</div>
+  
+	<!-- Vùng chat chính -->
+	<div 
+	  [ngClass]="{ 'ml-0': !showHistory, 'ml-64': showHistory }" 
+	  class="flex-1 flex flex-col p-6 transition-all duration-300"
+	>
+	  <!-- Header -->
+	  <div class="flex items-center justify-between mb-4">
+		<h1 class="text-3xl font-bold">Chatbot</h1>
+		<div class="space-x-2">
+		  <button 
+			(click)="toggleHistory()" 
+			class="bg-gray-300 hover:bg-gray-400 text-sm px-4 py-2 rounded"
+		  >
+			{{ showHistory ? 'Ẩn lịch sử' : 'Hiện lịch sử' }}
+		  </button>
+		  <button 
+			(click)="addToHistoryAndReset()" 
+			class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded"
+		  >
+			Đoạn chat mới
+		  </button>
+		</div>
+	  </div>
+  
+	  <!-- Khung hiển thị tin nhắn -->
+	  <div class="flex-1 overflow-y-auto border border-gray-300 rounded-lg p-4 bg-white mb-4">
+		<div *ngFor="let msg of messages" class="mb-3">
+		  <div 
+			[ngClass]="msg.role === 'user' ? 'bg-blue-100 text-blue-900 self-end' : 'bg-gray-100 text-gray-900 self-start'"
+			class="inline-block px-4 py-2 rounded-lg"
+		  >
+			<strong>{{ msg.role === 'user' ? 'Bạn' : 'Agent' }}:</strong> {{ msg.content }}
+		  </div>
+		</div>
+	  </div>
+  
+	  <!-- Khung nhập tin nhắn -->
+	  <div class="flex gap-2 items-center">
+		<textarea
+		  [(ngModel)]="newMessage"
+		  (keydown.enter)="sendMessage()"
+		  placeholder="Nhập tin nhắn..."
+		  rows="2"
+		  class="flex-1 resize-none rounded-lg border border-gray-400 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+		></textarea>
+		<div class="flex gap-2 items-center">	  
+		</div>
+		<button
+		  (click)="sendMessage()"
+		  class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800">
+		  Gửi
+		</button>
+				<!-- Nút upload ảnh tròn với dấu "+" 
+		<label class="relative w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center cursor-pointer">
+			<span class="text-xl font-bold text-gray-600">+</span>
+			<input type="file" accept="image/*" onchange="onImageSelected(event)" class="absolute inset-0 opacity-0 cursor-pointer" />
+		</label> -->
+		
+		<!-- Khu vực Drag & Drop -->
+		<div 
+		id="dropzone"
+		class="relative mt-2 flex items-center justify-center border-2 border-dashed border-gray-400 rounded-lg h-32 cursor-pointer text-gray-500 hover:bg-gray-100 transition"
+		(click)="fileInput.click()"
+		(drop)="handleDrop($event)"
+		(dragover)="onDragOver($event)"
+	  >
+		Drop&Click to upload image
+	  
+		<!-- Ẩn input file nhưng dùng ViewChild -->
+		<input
+		  #fileInput
+		  type="file"
+		  accept="image/*"
+		  (change)="handleFileSelect($event)"
+		  hidden
+		/>
+	  </div>
+	
+	
+		<div *ngIf="imagePreviewUrl" class="relative mt-4 inline-block w-64 h-48">
+			<button 
+			(click)="clearImage()" 
+			[style.position]="'absolute'"
+			[style.top.px]="6"
+			[style.right.px]="6"
+			style="background-color: red; color: white; border-radius: 9999px; width: 24px; height: 24px; font-size: 14px; z-index: 10;"
+			>
+			×
+		  </button>
+			<p class="text-sm text-gray-500"> Ảnh bạn đã chọn:</p>
+			<img 
+			[src]="imagePreviewUrl"
+			[style.width.px]="300"
+			[style.height.px]="200"
+			style="object-fit: contain; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2)"
+			/>
+		  </div>
+	  </div>
+	</div>
+  </div>
+  
